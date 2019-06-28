@@ -15,4 +15,9 @@ for index,row in df.iterrows():
  if row['Translated_Review']=='' and row['Sentiment'] !='':
   i=n
   print(row['Translated_Review'],row['Sentiment'],i)
+  
+  # import this script by using its file name
+  # use exec(open('file_name.py').read()) to execute in python
+  # look for index of the incomplete reviews in dataframe
+  # and drop it 
    
