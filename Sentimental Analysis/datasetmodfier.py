@@ -1,7 +1,9 @@
 import pandas as pd
 import numpy as np
+from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.text import one_hot
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import text_to_word_sequence
 
 df = pd.read_csv('APPSRev.csv')
 df=df.drop(['App'],axis=1)
@@ -12,7 +14,6 @@ df=df.replace(np.nan,'',regex=True)
 
 n=-1
 i=0
-dr=[]
 for index,row in df.iterrows():
  n+=1
  if row['Translated_Review']=='' and row['Sentiment'] !='':
@@ -40,18 +41,38 @@ for i in range(0,len(labels)):
  if labels[i]=='Negative':
   labels[i]=-1
 
-
 print('Sentiment Labels have changed, Positive ->1, Neutral ->0, Negative ->-1')
 
+str(" ".join(input))
+print('input flattened')
 
-encoded_input = [one_hot(word,50)for word in input]
-print('input has been hot encoded to get unique vocabulary')
-padded_input = pad_sequences(encoded_input,maxlen=4,padding='post')
-print('The hot encoded 2d map has been sliced as minibatch and is really for inputting into the CNN training model')
+Tokenize = Tokenizer()
+Tokenize.fit_on_texts(input)
+Tokenized_input = Tokenize.texts_to_matrix(input,mode='tfidf')
+print('Tokenized Matrix Constructed')
+
+Hotcoded_input=[]
+for sentence in input:
+ words=text_to_word_sequence(sentence)
+ vocabulary_size=len(words)
+ if vocabulary_size == 1:
+  vocabulary_size = 2
+ 
+ Hotcoded_input.append(one_hot(sentence,vocabulary_size))
+
+
+print('Sentence hot encoded')
+lengths = []
+for encoded_integer in Hotcoded_input:
+ lengths.append(len(encoded_integer))
+
+print('Max Length of Vector Getted')
+
+padded_input = pad_sequences(Hotcoded_input,maxlen=max(lengths),padding='post')
+print('The hot encoded data is really for importing')
   
   # import this script by using its file name
   # use exec(open('file_name.py').read()) to execute in python
-  # look for index of the incomplete reviews in dataframe
-  # and drop it 
-  # so finnaly there's maxlen of 4 minibatch of hot encoded vocabulary made for traning CNN
+  # After the execution, you will know the Tf-idf coeffiency of the input, padded one_hot coded data
+  # The tokenized data and one_hot coded data will be fitting into CNN model and RNN model to test Accuracy
    
